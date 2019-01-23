@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  deploy_prod:
+  deploy_dev:
     working_directory: /workspace
     docker:
       - image: google/cloud-sdk:latest
@@ -9,10 +9,10 @@ jobs:
       - run:
           name: Setup gcloud & kubectl
           command: |
-            echo $GCP_SERVICE_ACCOUNT_PROD | base64 --decode --ignore-garbage > /root/gcloud-service-key.json
+            echo $GCP_SERVICE_ACCOUNT_DEV | base64 --decode --ignore-garbage > /root/gcloud-service-key.json
             gcloud auth activate-service-account --key-file /root/gcloud-service-key.json            
-            gcloud --quiet config set project $GKE_PROJECT_PROD
-            gcloud --quiet config set compute/zone $GKE_ZONE_PROD
+            gcloud --quiet config set project $GKE_PROJECT_DEV
+            gcloud --quiet config set compute/zone $GKE_ZONE_DEV
             gcloud --quiet container clusters get-credentials $GKE_CLUSTER 
       - run:
           name: Deploy Letsencrypt
@@ -30,7 +30,7 @@ jobs:
       - run:
           name: Deploy Ingress GKE
           command: |
-            kubectl apply -f /workspace/deployment/gcp/gke/tls/iot-acme-cert.yaml
+            kubectl apply -f /workspace/deployment/gcp/gke/tls/tpi-acme-cert.yaml
             kubectl apply -f /workspace/deployment/gcp/gke/ingress-web-main.yml
       - run:
           name: Deploy Events Source Persistence
@@ -45,5 +45,5 @@ workflows:
   version: 2
   deploy:
     jobs:
-      - deploy_prod:
-          context: TPM
+      - deploy_dev:
+          context: TPI
