@@ -25,9 +25,9 @@ spec:
         backend:
           serviceName: auth-keycloak
           servicePort: 80        
-      - path: /api/gateway/*
+      - path: /api/emi-gateway/*
         backend:
-          serviceName: api-gateway
+          serviceName: api-emi-gateway
           servicePort: 80
   tls:
   - secretName: tpi-dev-http-nginx-tls-web
