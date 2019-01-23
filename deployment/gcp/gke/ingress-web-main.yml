@@ -29,5 +29,9 @@ spec:
         backend:
           serviceName: api-emi-gateway
           servicePort: 80
+      - path: /api/driver-gateway/*
+        backend:
+          serviceName: api-driver-gateway
+          servicePort: 80
   tls:
   - secretName: tpi-dev-http-nginx-tls-web
