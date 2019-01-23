@@ -3,17 +3,17 @@
 apiVersion: certmanager.k8s.io/v1alpha1
 kind: Certificate
 metadata:
-  name: tpi-http-nginx-tls-web
+  name: tpi-dev-http-nginx-tls-web
 spec:
-  secretName: tpi-http-nginx-tls-web
+  secretName: tpi-dev-http-nginx-tls-web
   issuerRef:
     name: letsencrypt-dev
-  commonName: tpi.nebulae.com.co
+  commonName: tpi-dev.nebulae.com.co
   dnsNames:
-  - tpi.nebulae.com.co
+  - tpi-dev.nebulae.com.co
   acme:
     config:
     - http01:
         ingress: ingress-web-main
       domains:
-      - tpi.nebulae.com.co
+      - tpi-dev.nebulae.com.co

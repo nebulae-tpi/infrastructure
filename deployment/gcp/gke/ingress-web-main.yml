@@ -10,7 +10,7 @@ metadata:
 
 spec:  
   rules:
-  - host: tpi.nebulae.com.co
+  - host: tpi-dev.nebulae.com.co
     http:
       paths:  
       - path: /*
@@ -30,4 +30,4 @@ spec:
           serviceName: api-gateway
           servicePort: 80
   tls:
-  - secretName: tpi-http-nginx-tls-web
+  - secretName: tpi-dev-http-nginx-tls-web
