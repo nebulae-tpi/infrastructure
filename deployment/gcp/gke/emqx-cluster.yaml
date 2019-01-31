@@ -5,16 +5,16 @@ metadata:
 spec:
   ports:
   - port: 1883
-    nodePort: 1883
-    targetPort:  mqtt-port
+    name:  mqtt-port
+    targetPort:  1883
     protocol: TCP
   - port: 8883
-    nodePort: 8883
-    targetPort:  mqtt-ssl-port
+    name:  mqtt-ssl-port
+    targetPort: 8883 
     protocol: TCP
-  - port: 32333
-    nodePort: 32333
-    targetPort:  emqx-dashboard
+  - port: 18083
+    name:  emqx-dashboard
+    targetPort:  18083
     protocol: TCP
   selector:
     app: emqx
@@ -27,12 +27,12 @@ metadata:
 spec:
   ports:
   - port: 1883
-    nodePort: 1883
-    targetPort:  mqtt-port
+    targetPort: 1883
+    name:  mqtt-port
     protocol: TCP
   - port: 8883
-    nodePort: 8883
-    targetPort:  mqtt-ssl-port
+    targetPort: 8883
+    name:  mqtt-ssl-port
     protocol: TCP
   selector:
     app: emqx
