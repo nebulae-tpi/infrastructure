@@ -40,6 +40,10 @@ jobs:
             for xi in $(seq 0 10); do kubectl get pod | grep dbevents-0 | grep Running && break; sleep 5; done
             kubectl exec dbevents-0 -- mongo --host dbevents-0.dbevents --port 27017  --eval "rs.conf()" || \
             kubectl exec dbevents-0 -- mongo --host dbevents-0.dbevents --port 27017  --eval  "rs.initiate({ _id : \"rs0\", members: [{ _id: 0, host: \"dbevents-0.dbevents:27017\" },{ _id: 1, host: \"dbevents-1.dbevents:27017\" },{ _id: 2, host: \"dbevents-2.dbevents:27017\" }]})"
+      - run:
+          name: Deploy EMQX cluster
+          command: |
+            kubectl apply -f /workspace/deployment/gcp/gke/emqx-cluster.yaml
 
 workflows:
   version: 2
