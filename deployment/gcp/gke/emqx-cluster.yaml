@@ -20,24 +20,24 @@ spec:
     app: emqx
   type: NodePort
 ---
-#apiVersion: v1
-#kind: Service
-#metadata:
-#  name: emqxinet
-#spec:
-#  ports:
-#  - port: 1883
-#    targetPort: 1883
-#    name:  mqtt-port
-#    protocol: TCP
-#  - port: 8883
-#    targetPort: 8883
-#    name:  mqtt-ssl-port
-#    protocol: TCP
-#  selector:
-#    app: emqx
-#  type: LoadBalancer
-#---
+apiVersion: v1
+kind: Service
+metadata:
+  name: emqxinet
+spec:
+  ports:
+  - port: 1883
+    targetPort: 1883
+    name:  mqtt-port
+    protocol: TCP
+  - port: 8883
+    targetPort: 8883
+    name:  mqtt-ssl-port
+    protocol: TCP
+  selector:
+    app: emqx
+  type: LoadBalancer
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -62,17 +62,17 @@ spec:
         - name: mqtt-ssl-port
           containerPort: 8883
         env:
-        - name: EMQX_CLUSTER__DISCOVERY
-          value: k8s
+          #- name: EMQX_CLUSTER__DISCOVERY
+          #value: k8s
         - name: EMQX_NAME
           value: emqx
-        - name: EMQX_CLUSTER__K8S__APISERVER
-          value: https://kubernetes.default:443
-        - name: EMQX_CLUSTER__K8S__NAMESPACE
-          value: default
-        - name: EMQX_CLUSTER__K8S__SERVICE_NAME
-          value: emqx
-        - name: EMQX_CLUSTER__K8S__ADDRESS_TYPE
-          value: ip
-        - name: EMQX_CLUSTER__K8S__APP_NAME
-          value: emqx
+          #- name: EMQX_CLUSTER__K8S__APISERVER
+          #value: https://kubernetes.default:443
+          #- name: EMQX_CLUSTER__K8S__NAMESPACE
+          #value: default
+          #- name: EMQX_CLUSTER__K8S__SERVICE_NAME
+          #value: emqx
+          #- name: EMQX_CLUSTER__K8S__ADDRESS_TYPE
+          #value: ip
+          #- name: EMQX_CLUSTER__K8S__APP_NAME
+          #value: emqx
