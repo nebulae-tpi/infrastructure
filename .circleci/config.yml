@@ -43,7 +43,17 @@ jobs:
       - run:
           name: Deploy EMQX cluster
           command: |
+            clusterrolebinding cluster-admin-binding --clusterrole cluster-admin --user $(gcloud config get-value account)
+            kubectl apply -f /workspace/deployment/gcp/gke/nginx-ingress/mandatory.yaml
+
+
+            gcloud compute addresses create nginx-ingress-mqtt --region $GKE_ZONE_DEV
+            IPP="$(gcloud compute addresses describe nginx-ingress-mqtt --region $GKE_ZONE_DEV | grep "address:" | cut -d" " -f2)"; sed s/IP_LB/$IPP/ /workspace/deployment/gcp/gke/nginx-ingress/cloud-generic.yaml > /tmp/cloud-generic.yaml
+            kubectl apply -f /tmp/cloud-generic.yaml
+
+            kubectl create clusterrolebinding service-reader-pod --clusterrole=view --serviceaccount=default:default
             kubectl apply -f /workspace/deployment/gcp/gke/emqx-cluster.yaml
+            kubectl apply -f /workspace/deployment/gcp/gke/ingress-mqtt-dev.yml
 
 workflows:
   version: 2
