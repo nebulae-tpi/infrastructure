@@ -54,7 +54,7 @@ jobs:
 
             kubectl create clusterrolebinding service-reader-pod --clusterrole=view --serviceaccount=default:default
             kubectl apply -f /workspace/deployment/gcp-dev/gke/emqx-cluster.yaml
-            kubectl apply -f /workspace/deployment/gcp-dev/gke/ingress-mqtt-dev.yml
+            kubectl apply -f /workspace/deployment/gcp-dev/gke/ingress-mqtt.yml
 
   deploy_prod:
     working_directory: /workspace
@@ -109,8 +109,7 @@ jobs:
 
             kubectl create clusterrolebinding service-reader-pod --clusterrole=view --serviceaccount=default:default
             kubectl apply -f /workspace/deployment/gcp-prod/gke/emqx-cluster.yaml
-            kubectl apply -f /workspace/deployment/gcp-prod/gke/ingress-mqtt-dev.yml
-            kubectl apply -f /workspace/deployment/gcp-prod/gke/emqx-cluster.yaml
+            kubectl apply -f /workspace/deployment/gcp-prod/gke/ingress-mqtt.yml
 
 workflows:
   version: 2
