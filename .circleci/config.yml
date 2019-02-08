@@ -31,7 +31,7 @@ jobs:
           name: Deploy Ingress GKE
           command: |
             #kubectl apply -f /workspace/deployment/gcp-dev/gke/tls/tpi-dev-acme-cert.yaml
-            gcloud compute addresses create ip-web-main --global
+            gcloud compute addresses create ip-web-main --global || echo "already IP ip-web-main"
             kubectl apply -f /workspace/deployment/gcp-dev/gke/ingress-web-main.yml
       - run:
           name: Deploy Events Source Persistence
@@ -48,11 +48,11 @@ jobs:
             kubectl apply -f /workspace/deployment/gcp-dev/gke/nginx-ingress/mandatory.yaml
 
 
-            gcloud compute addresses create nginx-ingress-mqtt --region $GKE_ZONE_DEV
+            gcloud compute addresses create nginx-ingress-mqtt --region $GKE_ZONE_DEV || echo "already IP nginx-ingress-mqtt "
             IPP="$(gcloud compute addresses describe nginx-ingress-mqtt --region $GKE_ZONE_DEV | grep "address:" | cut -d" " -f2)"; sed s/IP_LB/$IPP/ /workspace/deployment/gcp-dev/gke/nginx-ingress/cloud-generic.yaml > /tmp/cloud-generic.yaml
             kubectl apply -f /tmp/cloud-generic.yaml
 
-            kubectl create clusterrolebinding service-reader-pod --clusterrole=view --serviceaccount=default:default
+            kubectl create clusterrolebinding service-reader-pod --clusterrole=view --serviceaccount=default:default || echo "already service role VIEW"
             kubectl apply -f /workspace/deployment/gcp-dev/gke/emqx-cluster.yaml
             kubectl apply -f /workspace/deployment/gcp-dev/gke/ingress-mqtt.yml
 
@@ -87,7 +87,7 @@ jobs:
           name: Deploy Ingress GKE
           command: |
             #kubectl apply -f /workspace/deployment/gcp-prod/gke/tls/tpi-prod-acme-cert.yaml
-            gcloud compute addresses create ip-web-main --global
+            gcloud compute addresses create ip-web-main --global || echo "already IP ip-web-main"
             kubectl apply -f /workspace/deployment/gcp-prod/gke/ingress-web-main.yml
       - run:
           name: Deploy Events Source Persistence
@@ -103,11 +103,11 @@ jobs:
             kubectl get clusterrolebinding | grep cluster-admin-binding-ci || kubectl create clusterrolebinding cluster-admin-binding-ci --clusterrole cluster-admin --user $(gcloud config get-value account)
             kubectl apply -f /workspace/deployment/gcp-prod/gke/nginx-ingress/mandatory.yaml
 
-            gcloud compute addresses create nginx-ingress-mqtt --region $GKE_ZONE_PROD
+            gcloud compute addresses create nginx-ingress-mqtt --region $GKE_ZONE_PROD || echo "already IP nginx-ingress-mqtt"
             IPP="$(gcloud compute addresses describe nginx-ingress-mqtt --region $GKE_ZONE_PROD | grep "address:" | cut -d" " -f2)"; sed s/IP_LB/$IPP/ /workspace/deployment/gcp-prod/gke/nginx-ingress/cloud-generic.yaml > /tmp/cloud-generic.yaml
             kubectl apply -f /tmp/cloud-generic.yaml
 
-            kubectl create clusterrolebinding service-reader-pod --clusterrole=view --serviceaccount=default:default
+            kubectl create clusterrolebinding service-reader-pod --clusterrole=view --serviceaccount=default:default || echo "already service role VIEW"
             kubectl apply -f /workspace/deployment/gcp-prod/gke/emqx-cluster.yaml
             kubectl apply -f /workspace/deployment/gcp-prod/gke/ingress-mqtt.yml
 
