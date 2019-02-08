@@ -18,36 +18,88 @@ jobs:
           name: Deploy Letsencrypt
           command: |
             kubectl get clusterrolebinding | grep cluster-admin-binding-ci || kubectl create clusterrolebinding cluster-admin-binding-ci --clusterrole cluster-admin --user $(gcloud config get-value account)
-            kubectl apply -f /workspace/deployment/gcp/gke/tls/00-namespace.yaml
-            kubectl apply -f /workspace/deployment/gcp/gke/tls/serviceaccount.yaml
-            kubectl apply -f /workspace/deployment/gcp/gke/tls/clusterissuer-crd.yaml
-            kubectl apply -f /workspace/deployment/gcp/gke/tls/certificate-crd.yaml
-            kubectl apply -f /workspace/deployment/gcp/gke/tls/issuer-crd.yaml
-            kubectl apply -f /workspace/deployment/gcp/gke/tls/rbac.yaml
-            kubectl apply -f /workspace/deployment/gcp/gke/tls/deployment.yaml
-            kubectl apply -f /workspace/deployment/gcp/gke/tls/acme-issuer.yaml
+            kubectl apply -f /workspace/deployment/gcp-dev/gke/tls/00-namespace.yaml
+            kubectl apply -f /workspace/deployment/gcp-dev/gke/tls/serviceaccount.yaml
+            kubectl apply -f /workspace/deployment/gcp-dev/gke/tls/clusterissuer-crd.yaml
+            kubectl apply -f /workspace/deployment/gcp-dev/gke/tls/certificate-crd.yaml
+            kubectl apply -f /workspace/deployment/gcp-dev/gke/tls/issuer-crd.yaml
+            kubectl apply -f /workspace/deployment/gcp-dev/gke/tls/rbac.yaml
+            kubectl apply -f /workspace/deployment/gcp-dev/gke/tls/deployment.yaml
+            kubectl apply -f /workspace/deployment/gcp-dev/gke/tls/acme-issuer.yaml
 
       - run:
           name: Deploy Ingress GKE
           command: |
-            kubectl apply -f /workspace/deployment/gcp/gke/tls/tpi-dev-acme-cert.yaml
-            kubectl apply -f /workspace/deployment/gcp/gke/ingress-web-main.yml
+            kubectl apply -f /workspace/deployment/gcp-dev/gke/tls/tpi-dev-acme-cert.yaml
+            kubectl apply -f /workspace/deployment/gcp-dev/gke/ingress-web-main.yml
       - run:
           name: Deploy Events Source Persistence
           command: |
-            kubectl apply -f /workspace/deployment/gcp/gke/gcloud-ssd-eventsSource.yaml
-            kubectl apply -f /workspace/deployment/gcp/gke/mongo-statefulset-eventsSource.yaml
+            kubectl apply -f /workspace/deployment/gcp-dev/gke/gcloud-ssd-eventsSource.yaml
+            kubectl apply -f /workspace/deployment/gcp-dev/gke/mongo-statefulset-eventsSource.yaml
             for xi in $(seq 0 10); do kubectl get pod | grep dbevents-0 | grep Running && break; sleep 5; done
             kubectl exec dbevents-0 -- mongo --host dbevents-0.dbevents --port 27017  --eval "rs.conf()" || \
             kubectl exec dbevents-0 -- mongo --host dbevents-0.dbevents --port 27017  --eval  "rs.initiate({ _id : \"rs0\", members: [{ _id: 0, host: \"dbevents-0.dbevents:27017\" },{ _id: 1, host: \"dbevents-1.dbevents:27017\" },{ _id: 2, host: \"dbevents-2.dbevents:27017\" }]})"
       - run:
           name: Deploy EMQX cluster
           command: |
-            kubectl apply -f /workspace/deployment/gcp/gke/emqx-cluster.yaml
+            kubectl apply -f /workspace/deployment/gcp-dev/gke/emqx-cluster.yaml
+
+  deploy_prod:
+    working_directory: /workspace
+    docker:
+      - image: google/cloud-sdk:latest
+    steps:
+      - checkout
+      - run:
+          name: Setup gcloud & kubectl
+          command: |
+            echo $GCP_SERVICE_ACCOUNT_prod | base64 --decode --ignore-garbage > /root/gcloud-service-key.json
+            gcloud auth activate-service-account --key-file /root/gcloud-service-key.json            
+            gcloud --quiet config set project $GKE_PROJECT_prod
+            gcloud --quiet config set compute/zone $GKE_ZONE_prod
+            gcloud --quiet container clusters get-credentials $GKE_CLUSTER 
+      - run:
+          name: Deploy Letsencrypt
+          command: |
+            kubectl get clusterrolebinding | grep cluster-admin-binding-ci || kubectl create clusterrolebinding cluster-admin-binding-ci --clusterrole cluster-admin --user $(gcloud config get-value account)
+            kubectl apply -f /workspace/deployment/gcp-prod/gke/tls/00-namespace.yaml
+            kubectl apply -f /workspace/deployment/gcp-prod/gke/tls/serviceaccount.yaml
+            kubectl apply -f /workspace/deployment/gcp-prod/gke/tls/clusterissuer-crd.yaml
+            kubectl apply -f /workspace/deployment/gcp-prod/gke/tls/certificate-crd.yaml
+            kubectl apply -f /workspace/deployment/gcp-prod/gke/tls/issuer-crd.yaml
+            kubectl apply -f /workspace/deployment/gcp-prod/gke/tls/rbac.yaml
+            kubectl apply -f /workspace/deployment/gcp-prod/gke/tls/deployment.yaml
+            kubectl apply -f /workspace/deployment/gcp-prod/gke/tls/acme-issuer.yaml
+
+      - run:
+          name: Deploy Ingress GKE
+          command: |
+            kubectl apply -f /workspace/deployment/gcp-prod/gke/tls/tpi-prod-acme-cert.yaml
+            kubectl apply -f /workspace/deployment/gcp-prod/gke/ingress-web-main.yml
+      - run:
+          name: Deploy Events Source Persistence
+          command: |
+            kubectl apply -f /workspace/deployment/gcp-prod/gke/gcloud-ssd-eventsSource.yaml
+            kubectl apply -f /workspace/deployment/gcp-prod/gke/mongo-statefulset-eventsSource.yaml
+            for xi in $(seq 0 10); do kubectl get pod | grep dbevents-0 | grep Running && break; sleep 5; done
+            kubectl exec dbevents-0 -- mongo --host dbevents-0.dbevents --port 27017  --eval "rs.conf()" || \
+            kubectl exec dbevents-0 -- mongo --host dbevents-0.dbevents --port 27017  --eval  "rs.initiate({ _id : \"rs0\", members: [{ _id: 0, host: \"dbevents-0.dbevents:27017\" },{ _id: 1, host: \"dbevents-1.dbevents:27017\" },{ _id: 2, host: \"dbevents-2.dbevents:27017\" }]})"
+      - run:
+          name: Deploy EMQX cluster
+          command: |
+            kubectl apply -f /workspace/deployment/gcp-prod/gke/emqx-cluster.yaml
 
 workflows:
   version: 2
   deploy:
     jobs:
       - deploy_dev:
+          context: TPI
+      - hold: # <<< A job that will require manual approval in the CircleCI web application.
+          context: TPI
+          type: approval # <<< This key-value pair will set your workflow to a status of "On Hold"
+          requires: # We only run the "hold" job when test2 has succeeded
+            - deploy_dev
+      - deploy_prod:
           context: TPI

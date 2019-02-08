@@ -1,0 +1,19 @@
+## Example Certificate that uses multiple challenge mechanisms to obtain
+## a SAN certificate for multiple domains from the letsencrypt-staging issuer.
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: tpi-dev-http-nginx-tls-web
+spec:
+  secretName: tpi-dev-http-nginx-tls-web
+  issuerRef:
+    name: letsencrypt-dev
+  commonName: tpi-dev.nebulae.com.co
+  dnsNames:
+  - tpi-dev.nebulae.com.co
+  acme:
+    config:
+    - http01:
+        ingress: ingress-web-main
+      domains:
+      - tpi-dev.nebulae.com.co
