@@ -82,3 +82,34 @@ spec:
           value: ip
         - name: EMQX_CLUSTER__K8S__APP_NAME
           value: emqx
+        - name: EMQX_ALLOW_ANONYMOUS
+          value: "false"
+        - name: EMQX_LOADED_PLUGINS
+          value: emqx_management,emqx_auth_username,emqx_recon,emqx_retainer,emqx_dashboard
+        - name: EMQX_AUTH__USER__2__USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: driver-app-link
+              key: DRIVER_APP_MQTT_SERVER_USER
+        - name: EMQX_AUTH__USER__2__PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: driver-app-link
+              key: DRIVER_APP_MQTT_SERVER_PASSWORD
+        - name: EMQX_AUTH__USER__3__USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: driver-app-link
+              key: DRIVER_APP_MQTT_DRV_USER
+        - name: EMQX_AUTH__USER__3__PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: driver-app-link
+              key: DRIVER_APP_MQTT_DRV_PASSWORD
+        - name: EMQX_AUTH__USER__PASSWORD_HASH
+          value: sha256
+        - name: EMQX_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: driver-app-link
+              key: DRIVER_APP_MQTT_ADMIN_PASSWORD
