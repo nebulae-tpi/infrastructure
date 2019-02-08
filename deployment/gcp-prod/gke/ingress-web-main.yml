@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-web-main
+  annotations:
+    # Use a static ip
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.global-static-ip-name: ip-web-main
+    certmanager.k8s.io/issuer: "letsencrypt-dev"
+    certmanager.k8s.io/acme-challenge-type: http01
+    # enable session persistence for one or multiple services
+    nginx.com/sticky-cookie-services: "serviceName=auth-keycloak srv_id expires=1h path=/auth;"
+
+spec:  
+  rules:
+  - host: tpi.nebulae.com.co
+    http:
+      paths:  
+      - path: /*
+        backend:
+          serviceName: frontend-emi
+          servicePort: 80     
+      - path: /emi/*
+        backend:
+          serviceName: frontend-emi
+          servicePort: 80     
+      - path: /auth/*
+        backend:
+          serviceName: auth-keycloak
+          servicePort: 80        
+      - path: /api/emi-gateway/*
+        backend:
+          serviceName: api-emi-gateway
+          servicePort: 80
+      - path: /api/driver-gateway/*
+        backend:
+          serviceName: api-driver-gateway
+          servicePort: 80
+  tls:
+      - hosts:
+        - tpi.nebulae.com.co
+        secretName: tpi-http-nginx-tls-web

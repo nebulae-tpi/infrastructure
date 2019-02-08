@@ -1,0 +1,63 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dbevents
+  labels:
+    name: dbevents
+spec:
+  ports:
+  - port: 27017
+    targetPort: 27017
+  clusterIP: None
+  selector:
+    role: dbevents
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: dbevents
+spec:
+  serviceName: "dbevents"
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        role: dbevents
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: mongo
+          image: mongo
+          command:
+            - mongod
+            - "--bind_ip"
+            - "0.0.0.0"
+            - "--port"
+            - "27017" 
+            - "--wiredTigerCacheSizeGB"
+            - "0.5"
+            - "--replSet"
+            - rs0
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongo-persistent-storage
+              mountPath: /data/db
+          resources:
+            limits:
+              cpu: 200m
+              memory: 1400Mi
+            requests:
+              cpu: 50m
+              memory: 100Mi
+  volumeClaimTemplates:
+  - metadata:
+      name: mongo-persistent-storage
+      annotations:
+        volume.beta.kubernetes.io/storage-class: "fast"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 32Gi
