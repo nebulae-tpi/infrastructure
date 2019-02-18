@@ -117,12 +117,13 @@ workflows:
     jobs:
       - deploy_dev:
           context: TPI
-      - hold: # <<< A job that will require manual approval in the CircleCI web application.
-          context: TPI
-          type: approval # <<< This key-value pair will set your workflow to a status of "On Hold"
-          requires: # We only run the "hold" job when test2 has succeeded
-            - deploy_dev
+          filters:
+            branches:
+              only:
+                - develop
       - deploy_prod:
           context: TPI
-          requires: # We only run the "hold" job when test2 has succeeded
-            - hold
+          filters:
+            branches:
+              only:
+                - master
