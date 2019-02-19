@@ -111,8 +111,55 @@ jobs:
             kubectl apply -f /workspace/deployment/gcp-prod/gke/emqx-cluster.yaml
             kubectl apply -f /workspace/deployment/gcp-prod/gke/ingress-mqtt.yml
 
-workflows:
+# ################ SCHEDULE DEPLOY ################ 
+
+  deploy-schedule-develop-on:
+      working_directory: ~/nebulae/
+      docker:
+        - image: google/cloud-sdk:latest
+      steps:
+        - run:
+            name: resize gcloud development environment
+            command: |
+              gcloud container clusters resize $GKE_CLUSTER --size=4 --node-pool default-pool --project $GKE_PROJECT_PROD
+
+  deploy-schedule-develop-off:
+      working_directory: ~/nebulae/
+      docker:
+        - image: google/cloud-sdk:latest
+      steps:
+        - run:
+            name: down off cluster development environment
+            command: |
+              export VAR1=$(gcloud container node-pools describe default-pool --cluster=$GKE_PROJECT_DEV | grep initialNodeCount | awk "{print \$2}")
+              test "$VAR1" -gt 0 && gcloud container clusters resize $GKE_CLUSTER --size=0 --node-pool default-pool --project $GKE_PROJECT_DEV
+
+workflows: 
   version: 2
+  schedule-develop-on:
+    triggers:
+      - schedule:
+          cron: "0 30 12 1-5 *"
+          filters:
+            branches:
+              only:
+                - develop
+    jobs:
+      - deploy-schedule-develop-on:
+          context: TPI
+
+  schedule-develop-off:
+    triggers:
+      - schedule:
+          cron: "0 30 23 * *"
+          filters:
+            branches:
+              only:
+                - develop
+    jobs:
+      - deploy-schedule-develop-off:
+          context: TPI
+
   deploy:
     jobs:
       - deploy_dev:
