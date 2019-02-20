@@ -170,7 +170,7 @@ workflows:
   schedule-develop-off:
     triggers:
       - schedule:
-          cron: "47-52 12 * * *"
+          cron: "47-55 12 * * *"
           filters:
             branches:
               only:
