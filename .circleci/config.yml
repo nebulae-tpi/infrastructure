@@ -151,7 +151,7 @@ jobs:
             name: down off cluster development environment
             command: |
               export VAR1=$(gcloud container node-pools describe default-pool --cluster=$GKE_CLUSTER | grep initialNodeCount | awk "{print \$2}")
-              [[ $VAR1 -gt 0 ]] && echo "gcloud container clusters resize $GKE_CLUSTER --size=0 --node-pool default-pool --project $GKE_PROJECT_DEV" || echo "cluster size: $VAR1"
+              [[ $VAR1 -gt 0 ]] && gcloud container clusters resize $GKE_CLUSTER --size=0 --node-pool default-pool --project $GKE_PROJECT_DEV || echo "cluster size: $VAR1"
 
 workflows: 
   version: 2
@@ -170,7 +170,7 @@ workflows:
   schedule-develop-off:
     triggers:
       - schedule:
-          cron: "0-6 13 * * *"
+          cron: "38 23 * * *"
           filters:
             branches:
               only:
