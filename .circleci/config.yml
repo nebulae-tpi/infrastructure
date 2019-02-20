@@ -118,21 +118,40 @@ jobs:
       docker:
         - image: google/cloud-sdk:latest
       steps:
+        - checkout
+        - run:
+            name: Setup gcloud & kubectl
+            command: |
+              echo $GCP_SERVICE_ACCOUNT_DEV | base64 --decode --ignore-garbage > /root/gcloud-service-key.json
+              gcloud auth activate-service-account --key-file /root/gcloud-service-key.json            
+              gcloud --quiet config set project $GKE_PROJECT_DEV
+              gcloud --quiet config set compute/zone $GKE_ZONE_DEV
+              gcloud --quiet container clusters get-credentials $GKE_CLUSTER 
         - run:
             name: resize gcloud development environment
             command: |
-              gcloud container clusters resize $GKE_CLUSTER --size=4 --node-pool default-pool --project $GKE_PROJECT_PROD
+              export VAR1=$(gcloud container node-pools describe default-pool --cluster=$GKE_PROJECT_DEV | grep initialNodeCount | awk "{print \$2}")
+              test "$VAR1" -lt 3 && gcloud container clusters resize $GKE_CLUSTER --size=4 --node-pool default-pool --project $GKE_PROJECT_PROD
 
   deploy-schedule-develop-off:
       working_directory: ~/nebulae/
       docker:
         - image: google/cloud-sdk:latest
       steps:
+        - checkout
+        - run:
+            name: Setup gcloud
+            command: |
+              echo $GCP_SERVICE_ACCOUNT_DEV | base64 --decode --ignore-garbage > /root/gcloud-service-key.json
+              gcloud auth activate-service-account --key-file /root/gcloud-service-key.json            
+              gcloud --quiet config set project $GKE_PROJECT_DEV
+              gcloud --quiet config set compute/zone $GKE_ZONE_DEV
+              gcloud --quiet container clusters get-credentials $GKE_CLUSTER 
         - run:
             name: down off cluster development environment
             command: |
               export VAR1=$(gcloud container node-pools describe default-pool --cluster=$GKE_PROJECT_DEV | grep initialNodeCount | awk "{print \$2}")
-              test "$VAR1" -gt 0 && gcloud container clusters resize $GKE_CLUSTER --size=0 --node-pool default-pool --project $GKE_PROJECT_DEV
+              test "$VAR1" -gt 0 && echo "gcloud container clusters resize $GKE_CLUSTER --size=0 --node-pool default-pool --project $GKE_PROJECT_DEV"
 
 workflows: 
   version: 2
@@ -151,7 +170,7 @@ workflows:
   schedule-develop-off:
     triggers:
       - schedule:
-          cron: "30 23 * * *"
+          cron: "47 12 * * *"
           filters:
             branches:
               only:
