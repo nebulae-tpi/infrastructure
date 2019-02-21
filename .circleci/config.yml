@@ -162,7 +162,7 @@ workflows:
   schedule-develop-on:
     triggers:
       - schedule:
-          cron: "30 12 * * 1-5"
+          cron: "37 16 * * 1-5"
           filters:
             branches:
               only:
