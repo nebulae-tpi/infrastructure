@@ -131,7 +131,9 @@ jobs:
             name: resize gcloud development environment
             command: |
               export VAR1=$(gcloud compute instance-groups list --project $GKE_PROJECT_DEV | grep $GKE_CLUSTER-default-pool | awk "{ print \$6 }")
-              [[ $VAR1 -lt 3 ]] && gcloud container clusters resize $GKE_CLUSTER --size=4 --node-pool default-pool --project $GKE_PROJECT_DEV --quiet || echo "cluster size: $VAR1"
+              [[ $VAR1 -lt 3 ]] && gcloud container clusters resize $GKE_CLUSTER --size=4 --node-pool default-pool --project $GKE_PROJECT_DEV --quiet; export VAR2=0 || export VAR2=1
+              [[ $VAR2 -eq 0 ]] && sleep 60 || echo "dont resize"
+              [[ $VAR2 -eq 0 ]] && for xi in $(kubectl get deploy | grep -v "^NAME" | awk "{ print \$1}"); do kubetcl scale deploy/$xi --replicas=1; done || echo "dont resize"
 
   deploy-schedule-develop-off:
       working_directory: ~/nebulae/
@@ -151,6 +153,8 @@ jobs:
             name: down off cluster development environment
             command: |
               export VAR1=$(gcloud compute instance-groups list --project $GKE_PROJECT_DEV | grep $GKE_CLUSTER-default-pool | awk "{ print \$6 }")
+              [[ $VAR1 -gt 0 ]] && for xi in $(kubectl get deploy | grep -v "^NAME" | awk "{ print \$1}"); do kubetcl scale deploy/$xi --replicas=0; done; export VAR2=0 || export VAR2=1
+              [[ $VAR2 -eq 0 ]] && sleep 60 || echo "dont resize"
               [[ $VAR1 -gt 0 ]] && gcloud container clusters resize $GKE_CLUSTER --size=0 --node-pool default-pool --project $GKE_PROJECT_DEV --quiet || echo "cluster size: $VAR1"
 
 workflows: 
