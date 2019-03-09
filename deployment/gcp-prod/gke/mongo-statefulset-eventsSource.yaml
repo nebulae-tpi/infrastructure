@@ -46,10 +46,10 @@ spec:
               mountPath: /data/db
           resources:
             limits:
-              cpu: 500m
+              cpu: 1000m
               memory: 1400Mi
             requests:
-              cpu: 50m
+              cpu: 100m
               memory: 100Mi
   volumeClaimTemplates:
   - metadata:
