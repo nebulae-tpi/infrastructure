@@ -36,7 +36,7 @@ spec:
             - "--port"
             - "27017" 
             - "--wiredTigerCacheSizeGB"
-            - "0.5"
+            - "1.5"
             - "--replSet"
             - rs0
           ports:
@@ -47,10 +47,10 @@ spec:
           resources:
             limits:
               cpu: 1000m
-              memory: 1400Mi
+              memory: 3000Mi
             requests:
               cpu: 100m
-              memory: 100Mi
+              memory: 2000Mi
   volumeClaimTemplates:
   - metadata:
       name: mongo-persistent-storage
