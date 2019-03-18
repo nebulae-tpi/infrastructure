@@ -36,6 +36,10 @@ spec:
         backend:
           serviceName: api-driver-gateway
           servicePort: 80
+      - path: /api/client-gateway/*
+        backend:
+          serviceName: api-client-gateway
+          servicePort: 80
   tls:
       - hosts:
         - tpi-dev.nebulae.com.co
