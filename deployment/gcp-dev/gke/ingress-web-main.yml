@@ -40,7 +40,17 @@ spec:
         backend:
           serviceName: api-client-gateway
           servicePort: 80
+          #  - host: web.txplux.com.co
+          #    http:
+          #      paths:  
+          #      - path: /*
+          #        backend:
+          #          serviceName: web-sample
+          #          servicePort: 8080     
   tls:
       - hosts:
         - tpi-dev.nebulae.com.co
         secretName: tpi-dev-http-nginx-tls-web
+        #      - hosts:
+        #        - web.txplux.com.co
+        #        secretName: tpi-dev-tls-web-sample
