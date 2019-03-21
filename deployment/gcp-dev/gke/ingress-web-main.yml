@@ -24,6 +24,10 @@ spec:
         backend:
           serviceName: frontend-emi
           servicePort: 80     
+      - path: /app/*
+        backend:
+          serviceName: frontend-pwa-client
+          servicePort: 80     
       - path: /auth/*
         backend:
           serviceName: auth-keycloak
