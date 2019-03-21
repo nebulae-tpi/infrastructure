@@ -17,8 +17,8 @@ spec:
       paths:  
       - path: /*
         backend:
-          serviceName: web-sample
-          servicePort: 8080     
+          serviceName: frontend-pwa-client
+          servicePort: 80
   tls:
       - hosts:
         - app.txplux.com.co
