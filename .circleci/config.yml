@@ -179,7 +179,7 @@ workflows:
   schedule-develop-off:
     triggers:
       - schedule:
-          cron: "38 23 * * *"
+          cron: "38 05 * * *"
           filters:
             branches:
               only:
