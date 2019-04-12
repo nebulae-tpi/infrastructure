@@ -24,24 +24,24 @@ spec:
     app: emqx
   type: NodePort
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: emqxinet
-spec:
-  ports:
-  - port: 1883
-    targetPort: 1883
-    name:  mqtt-port
-    protocol: TCP
-  - port: 8883
-    targetPort: 8883
-    name:  mqtt-ssl-port
-    protocol: TCP
-  selector:
-    app: emqx
-  type: LoadBalancer
----
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: emqxinet
+#spec:
+#  ports:
+#  - port: 1883
+#    targetPort: 1883
+#    name:  mqtt-port
+#    protocol: TCP
+#  - port: 8883
+#    targetPort: 8883
+#    name:  mqtt-ssl-port
+#    protocol: TCP
+#  selector:
+#    app: emqx
+#  type: LoadBalancer
+#---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:

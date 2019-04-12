@@ -15,16 +15,16 @@ metadata:
 spec:
   rules:
     - host: mqtt-tpi.nebulae.com.co
-      #      http:
-      #        paths:
-      #        - path: /mqtt
-      #          backend:
-      #        serviceName: emqx
-      #            servicePort: 8083
+      http:
+        paths:
+        - path: /
+          backend:
+              serviceName: emqx
+              servicePort: 8083
   tls:
     - hosts:
       - mqtt-tpi.nebulae.com.co
       secretName: mqtt-tpi-wss
-  backend:
-    serviceName: emqx
-    servicePort: 8083
+      #  backend:
+      #    serviceName: emqx
+      #    servicePort: 8083
