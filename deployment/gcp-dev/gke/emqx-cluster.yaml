@@ -57,7 +57,7 @@ spec:
     spec:
       containers:
       - name: emqx
-        image: emqx/emqx:latest
+        image: emqx/emqx:v3.1-rc.1
         ports:
         - name: emqx-dashboard
           containerPort: 18083
