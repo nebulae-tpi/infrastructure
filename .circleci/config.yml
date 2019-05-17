@@ -65,10 +65,10 @@ jobs:
       - run:
           name: Setup gcloud & kubectl
           command: |
-            echo $GCP_SERVICE_ACCOUNT_PROD | base64 --decode --ignore-garbage > /root/gcloud-service-key.json
+            echo $GCP_SERVICE_ACCOUNT_DEV | base64 --decode --ignore-garbage > /root/gcloud-service-key.json
             gcloud auth activate-service-account --key-file /root/gcloud-service-key.json            
-            gcloud --quiet config set project $GKE_PROJECT_PROD
-            gcloud --quiet config set compute/zone $GKE_ZONE_PROD
+            gcloud --quiet config set project $GKE_PROJECT_DEV
+            gcloud --quiet config set compute/zone $GKE_ZONE_DEV
             gcloud --quiet container clusters get-credentials $GKE_CLUSTER 
       - run:
           name: Deploy Letsencrypt
@@ -108,8 +108,8 @@ jobs:
             kubectl get clusterrolebinding | grep cluster-admin-binding-ci || kubectl create clusterrolebinding cluster-admin-binding-ci --clusterrole cluster-admin --user $(gcloud config get-value account)
             kubectl apply -f /workspace/deployment/gcp-prod/gke/nginx-ingress/mandatory.yaml
 
-            gcloud compute addresses create nginx-ingress-mqtt --region $GKE_REGION_PROD || echo "already IP nginx-ingress-mqtt"
-            IPP="$(gcloud compute addresses describe nginx-ingress-mqtt --region $GKE_REGION_PROD | grep "address:" | cut -d" " -f2)"; sed s/IP_LB/$IPP/ /workspace/deployment/gcp-prod/gke/nginx-ingress/cloud-generic.yaml > /tmp/cloud-generic.yaml
+            gcloud compute addresses create nginx-ingress-mqtt --region $GKE_REGION_DEV || echo "already IP nginx-ingress-mqtt"
+            IPP="$(gcloud compute addresses describe nginx-ingress-mqtt --region $GKE_REGION_DEV | grep "address:" | cut -d" " -f2)"; sed s/IP_LB/$IPP/ /workspace/deployment/gcp-prod/gke/nginx-ingress/cloud-generic.yaml > /tmp/cloud-generic.yaml
             kubectl apply -f /tmp/cloud-generic.yaml
 
             kubectl create clusterrolebinding service-reader-pod --clusterrole=view --serviceaccount=default:default || echo "already service role VIEW"
