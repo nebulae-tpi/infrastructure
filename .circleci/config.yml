@@ -34,7 +34,7 @@ jobs:
             #gcloud compute addresses create ip-web-main --global || echo "already IP ip-web-main"
             kubectl apply -f /workspace/deployment/gcp-dev/gke/ingress-web-main.yml
       - run:
-          name: install helm
+          name: install helm support
           command: |
             kubectl get serviceaccount --namespace=kube-system | grep tiller || kubectl create serviceaccount tiller --namespace=kube-system
             kubectl get clusterrolebinding | grep tiller-admin || kubectl create clusterrolebinding tiller-admin --serviceaccount=kube-system:tiller --clusterrole=cluster-admin
