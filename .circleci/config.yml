@@ -205,7 +205,7 @@ workflows:
               only:
                 - develop
       - deploy_prod:
-          context: TPI
+          context: TPI_PROD
           filters:
             branches:
               only:
