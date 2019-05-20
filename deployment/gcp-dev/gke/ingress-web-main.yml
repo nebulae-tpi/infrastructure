@@ -8,6 +8,7 @@ metadata:
     certmanager.k8s.io/acme-challenge-type: http01
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/affinity: "cookie"
 spec:  
   rules:
   - host: tpi-dev.nebulae.com.co
@@ -27,7 +28,7 @@ spec:
           servicePort: 80     
       - path: /auth
         backend:
-          serviceName: auth-keycloak
+          serviceName: keycloak-http
           servicePort: 80        
       - path: /api/emi-gateway
         backend:
