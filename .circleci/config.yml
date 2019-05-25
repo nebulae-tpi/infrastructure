@@ -32,7 +32,6 @@ jobs:
             #kubectl apply -f ~/workspace/deployment/gcp-dev/gke/tls/tpi-dev-acme-cert.yaml
             #gcloud compute addresses create ip-web-main --global || echo "already IP ip-web-main"
             kubectl apply -f ~/workspace/deployment/gcp-dev/gke/ingress-web-main.yml
-
       - run:
           name: install helm support
           command: |
@@ -40,7 +39,6 @@ jobs:
             kubectl get clusterrolebinding | grep tiller-admin || kubectl create clusterrolebinding tiller-admin --serviceaccount=kube-system:tiller --clusterrole=cluster-admin
             helm init --service-account=tiller
             helm repo update
-
       - run:
           name: Deploy Events Source Persistence
           command: |
@@ -90,7 +88,6 @@ jobs:
             kubectl apply -f /workspace/deployment/gcp-prod/gke/tls/rbac.yaml
             kubectl apply -f /workspace/deployment/gcp-prod/gke/tls/deployment.yaml
             kubectl apply -f /workspace/deployment/gcp-prod/gke/tls/acme-issuer.yaml
-
       - run:
           name: Deploy Ingress MAIN GKE
           command: |
@@ -109,28 +106,6 @@ jobs:
             kubectl get clusterrolebinding | grep tiller-admin || kubectl create clusterrolebinding tiller-admin --serviceaccount=kube-system:tiller --clusterrole=cluster-admin
             helm init --service-account=tiller
             helm repo update
-      - run:
-          name: Deploy Events Source Persistence
-          command: |
-            kubectl apply -f ~/workspace/deployment/gcp-dev/gke/gcloud-ssd-eventsSource.yaml
-            kubectl apply -f ~/workspace/deployment/gcp-dev/gke/mongo-statefulset-eventsSource.yaml
-            for xi in $(seq 0 10); do kubectl get pod | grep dbevents-0 | grep Running && break; sleep 5; done
-            kubectl exec dbevents-0 -- mongo --host dbevents-0.dbevents --port 27017  --eval "rs.conf()" || \
-            kubectl exec dbevents-0 -- mongo --host dbevents-0.dbevents --port 27017  --eval  "rs.initiate({ _id : \"rs0\", members: [{ _id: 0, host: \"dbevents-0.dbevents:27017\" },{ _id: 1, host: \"dbevents-1.dbevents:27017\" },{ _id: 2, host: \"dbevents-2.dbevents:27017\" }]})"
-      - run:
-          name: Deploy EMQX cluster
-          command: |
-            kubectl get clusterrolebinding | grep cluster-admin-binding-ci || kubectl create clusterrolebinding cluster-admin-binding-ci --clusterrole cluster-admin --user $(gcloud config get-value account)
-            kubectl apply -f ~/workspace/deployment/gcp-dev/gke/nginx-ingress/mandatory.yaml
-
-
-            gcloud compute addresses create nginx-ingress-mqtt --region $GKE_REGION_DEV || echo "already IP nginx-ingress-mqtt "
-            IPP="$(gcloud compute addresses describe nginx-ingress-mqtt --region $GKE_REGION_DEV | grep "address:" | cut -d" " -f2)"; sed s/IP_LB/$IPP/ ~/workspace/deployment/gcp-dev/gke/nginx-ingress/cloud-generic.yaml > /tmp/cloud-generic.yaml
-            kubectl apply -f /tmp/cloud-generic.yaml
-
-            kubectl create clusterrolebinding service-reader-pod --clusterrole=view --serviceaccount=default:default || echo "already service role VIEW"
-            kubectl apply -f ~/workspace/deployment/gcp-dev/gke/emqx-cluster.yaml
-            kubectl apply -f ~/workspace/deployment/gcp-dev/gke/ingress-mqtt.yml
       - run:
           name: Deploy Events Source Persistence
           command: |
