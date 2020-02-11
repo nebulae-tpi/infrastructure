@@ -111,6 +111,7 @@ jobs:
           command: |
             #gcloud compute addresses create ip-txplux --global || echo "already IP ip-txplux"
             kubectl apply -f ~/workspace/deployment/gcp-prod/gke/ingress-txplux.yml
+            kubectl apply -f ~/workspace/deployment/gcp-prod/gke/ingress-txplux-manizales.yml
       - run:
           name: Deploy Events Source Persistence
           command: |
