@@ -3,7 +3,7 @@ jobs:
   deploy_dev:
     working_directory: ~/workspace
     docker:
-      - image: kiwigrid/gcloud-kubectl-helm
+      - image: kiwigrid/gcloud-kubectl-helm:2.14.3-263.0.0-158
     steps:
       - checkout
       - run:
@@ -65,7 +65,7 @@ jobs:
   deploy_prod:
     working_directory: ~/workspace
     docker:
-      - image: kiwigrid/gcloud-kubectl-helm
+      - image: kiwigrid/gcloud-kubectl-helm:2.14.3-263.0.0-158
     steps:
       - checkout
       - run:
@@ -77,17 +77,29 @@ jobs:
             gcloud --quiet config set compute/zone $GKE_ZONE_DEV
             gcloud --quiet container clusters get-credentials $GKE_CLUSTER 
       - run:
+          name: install helm support
+          command: |
+            kubectl get serviceaccount --namespace=kube-system | grep tiller || kubectl create serviceaccount tiller --namespace=kube-system
+            kubectl get clusterrolebinding | grep tiller-admin || kubectl create clusterrolebinding tiller-admin --serviceaccount=kube-system:tiller --clusterrole=cluster-admin
+            helm init --service-account=tiller
+            helm repo update
+      - run:
           name: Deploy Letsencrypt
           command: |
-            kubectl get clusterrolebinding | grep cluster-admin-binding-ci || kubectl create clusterrolebinding cluster-admin-binding-ci --clusterrole cluster-admin --user $(gcloud config get-value account)
-            kubectl apply -f ~/workspace/deployment/gcp-prod/gke/tls/00-namespace.yaml
-            kubectl apply -f ~/workspace/deployment/gcp-prod/gke/tls/serviceaccount.yaml
-            kubectl apply -f ~/workspace/deployment/gcp-prod/gke/tls/clusterissuer-crd.yaml
-            kubectl apply -f ~/workspace/deployment/gcp-prod/gke/tls/certificate-crd.yaml
-            kubectl apply -f ~/workspace/deployment/gcp-prod/gke/tls/issuer-crd.yaml
-            kubectl apply -f ~/workspace/deployment/gcp-prod/gke/tls/rbac.yaml
-            kubectl apply -f ~/workspace/deployment/gcp-prod/gke/tls/deployment.yaml
-            kubectl apply -f ~/workspace/deployment/gcp-prod/gke/tls/acme-issuer.yaml
+            kubectl create namespace cert-manager || echo "namespace already create"
+            kubectl apply --validate=false -f https://raw.githubusercontent.com/jetstack/cert-manager/v0.13.0/deploy/manifests/00-crds.yaml
+            helm repo add jetstack https://charts.jetstack.io
+            helm repo update
+            helm upgrade cert-manager --namespace cert-manager --version v0.13.0 jetstack/cert-manager
+            kubectl apply -f ~/workspace/deployment/gcp-prod/gke/tls/acme-issuer-v2.yaml
+            # kubectl get clusterrolebinding | grep cluster-admin-binding-ci || kubectl create clusterrolebinding cluster-admin-binding-ci --clusterrole cluster-admin --user $(gcloud config get-value account)
+            # kubectl apply -f ~/workspace/deployment/gcp-prod/gke/tls/00-namespace.yaml
+            # kubectl apply -f ~/workspace/deployment/gcp-prod/gke/tls/serviceaccount.yaml
+            # kubectl apply -f ~/workspace/deployment/gcp-prod/gke/tls/clusterissuer-crd.yaml
+            # kubectl apply -f ~/workspace/deployment/gcp-prod/gke/tls/certificate-crd.yaml
+            # kubectl apply -f ~/workspace/deployment/gcp-prod/gke/tls/issuer-crd.yaml
+            # kubectl apply -f ~/workspace/deployment/gcp-prod/gke/tls/rbac.yaml
+            # kubectl apply -f ~/workspace/deployment/gcp-prod/gke/tls/deployment.yaml
       - run:
           name: Deploy Ingress MAIN GKE
           command: |
@@ -99,13 +111,6 @@ jobs:
           command: |
             #gcloud compute addresses create ip-txplux --global || echo "already IP ip-txplux"
             kubectl apply -f ~/workspace/deployment/gcp-prod/gke/ingress-txplux.yml
-      - run:
-          name: install helm support
-          command: |
-            kubectl get serviceaccount --namespace=kube-system | grep tiller || kubectl create serviceaccount tiller --namespace=kube-system
-            kubectl get clusterrolebinding | grep tiller-admin || kubectl create clusterrolebinding tiller-admin --serviceaccount=kube-system:tiller --clusterrole=cluster-admin
-            helm init --service-account=tiller
-            helm repo update
       - run:
           name: Deploy Events Source Persistence
           command: |

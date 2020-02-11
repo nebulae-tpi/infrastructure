@@ -4,8 +4,9 @@ metadata:
   name: ingress-web-main
   annotations:
     # Use a static ip
+    cert-manager.io/issuer: letsencrypt
     kubernetes.io/ingress.class: "nginx"
-    certmanager.k8s.io/issuer: "letsencrypt-dev"
+    #certmanager.k8s.io/issuer: "letsencrypt-dev"
     certmanager.k8s.io/acme-challenge-type: http01
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
@@ -42,4 +43,4 @@ spec:
   tls:
       - hosts:
         - tpi.nebulae.com.co
-        secretName: tpi-http-nginx-tls-web3
+        secretName: tpi-http-nginx-tls-web4
