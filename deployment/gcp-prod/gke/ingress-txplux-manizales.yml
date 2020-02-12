@@ -16,7 +16,7 @@ metadata:
 
 spec:  
   rules:
-  - host: appm.txplus.com.co
+  - host: manizales.txplus.com.co
     http:
       paths:  
       - path: /
@@ -25,5 +25,5 @@ spec:
           servicePort: 80
   tls:
       - hosts:
-        - appm.txplus.com.co
-        secretName: tls-txplus-maz1
+        - manizales.txplus.com.co
+        secretName: tls-txplus-maz2
