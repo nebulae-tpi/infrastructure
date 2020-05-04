@@ -10,7 +10,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     #certmanager.k8s.io/issuer: "letsencrypt-dev"
     cert-manager.io/issuer: letsencrypt
-    certmanager.k8s.io/acme-challenge-type: http01
+    #certmanager.k8s.io/acme-challenge-type: http01
     # enable session persistence for one or multiple services
 
 spec:
@@ -25,7 +25,7 @@ spec:
   tls:
     - hosts:
       - mqtt-tpi.nebulae.com.co
-      secretName: mqtt-tpi-wss3
+      secretName: mqtt-tpi-wss
       #  backend:
       #    serviceName: emqx
       #    servicePort: 8083
