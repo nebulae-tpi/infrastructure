@@ -29,7 +29,7 @@ jobs:
             helm repo add jetstack https://charts.jetstack.io
             helm repo update
             helm upgrade --install cert-manager --namespace cert-manager --version v0.13.0 jetstack/cert-manager
-            kubectl apply -f ~/workspace/deployment/gcp-prod/gke/tls/acme-issuer-v2.yaml
+            kubectl apply -f ~/workspace/deployment/gcp-dev/gke/tls/acme-issuer-v2.yaml
             # kubectl get clusterrolebinding | grep cluster-admin-binding-ci || kubectl create clusterrolebinding cluster-admin-binding-ci --clusterrole cluster-admin --user $(gcloud config get-value account)
             # kubectl apply -f ~/workspace/deployment/gcp-prod/gke/tls/00-namespace.yaml
             # kubectl apply -f ~/workspace/deployment/gcp-prod/gke/tls/serviceaccount.yaml
